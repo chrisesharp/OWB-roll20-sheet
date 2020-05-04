@@ -1,360 +1,267 @@
 <!-- === WORKERS ===  -->
 <script type="text/worker">
-    on("change:STR", function(eventinfo){
-        var carac = parseInt(eventinfo.newValue) || 0;
-        var tohit = 0;
-        var dmg = 0;
-        var carry = 0;
-        var door = 0;
-        if (carac>2 && carac<5) {
-            tohit = -2;
-            dmg = -1;
-            door = 1;
-            carry = -10;
+    var universalModifier = (attribute) => {
+        var modifier = 0;
+        if (attribute == 3) {
+            modifier = -3;
         }
-        else if (carac>4 && carac<7) {
-            tohit=-1;
-            dmg = 0;
-            door = 1;
-            carry = -5;
+        else if (attribute >= 4 && attribute <= 5) {
+            modifier = -2;
         }
-        else if (carac>6 && carac<9) {
-            tohit=0;
-            dmg = 0;
-            door = 2;
-            carry = 0;
+        else if (attribute >= 6 && attribute <= 8) {
+            modifier = -1;
         }
-        else if (carac>8 && carac<13) {
-            tohit=-1;
-            dmg = 0;
-            door = 2;
-            carry = 5;
+        else if (attribute >= 13 && attribute <= 15) {
+            modifier = 1;
         }
-        else if (carac>12 && carac<16) {
-            tohit=1;
-            dmg = 0;
-            door = 2;
-            carry = 10;
+        else if (attribute >= 16 && attribute <= 17) {
+            modifier = 2;
         }
-        else if (carac == 16) {
-            tohit=1;
-            dmg = 1;
-            door = 3;
-            carry = 15;
+        else if (attribute == 18) {
+            modifier = 3;
         }
-        else if (carac == 17) {
-            tohit=2;
-            dmg = 2;
-            door = 4;
-            carry = 30;
-        }
-        else if (carac > 17) {
-            tohit=2;
-            dmg = 3;
-            door = 5;
-            carry = 50;
-        }
+        return modifier;
+    }
+    
+    var getAttribute = (value) => {
+        var attribute = parseInt(value) || 0;
+        return Math.min(18, Math.max(3, attribute));
+    }
+    
+    on("change:STR", (eventinfo) => {
+        var attribute = getAttribute(eventinfo.newValue)
+        var modifier = universalModifier(attribute);
         setAttrs({
-            meleehitbonus: tohit,
-            meleedmgbonus: dmg,
-            carrybonus: carry,
-            opendoors: door
+            STR: attribute,
+            strmod: modifier
         });
     });
-    on("change:DEX", function(){
-        getAttrs(["DEX","typeac"], function(values) {
-            var carac = parseInt(values.DEX) || 0;
-            var typeac = parseInt(values.typeac) || 0;
-            var tohit = 0;
-            var ac = 0;
-            if (carac>2 && carac<9) {
-                tohit = -1;
-                if (typeac == 0) {
-                    ac = -1;
-                } else {
-                    ac = 1;
+    
+    on("change:DEX", (eventinfo) => {
+        var attribute = getAttribute(eventinfo.newValue)
+        var modifier = universalModifier(attribute);
+        setAttrs({
+            DEX: attribute,
+            dexmod: modifier
+        });
+    });
+    
+    on("change:CON", (eventinfo) => {
+        var attribute = getAttribute(eventinfo.newValue)
+        var modifier = universalModifier(attribute);
+        setAttrs({
+            CON: attribute,
+            conmod: modifier
+        });
+    });
+    
+    on("change:INT", (eventinfo) => {
+        var attribute = getAttribute(eventinfo.newValue)
+        var modifier = universalModifier(attribute);
+        setAttrs({
+            INT: attribute,
+            intmod: modifier,
+        });
+    });
+    
+    on("change:WIS", (eventinfo) =>{
+        var attribute = getAttribute(eventinfo.newValue)
+        var modifier = universalModifier(attribute);
+        var xpbonus = 0;
+        if (attribute >= 13) {
+            xpbonus = 5;
+        }
+        setAttrs({
+            WIS: attribute,
+            wismod: modifier,
+            wisxp: xpbonus
+        });
+    });
+    
+    on("change:CHA", (eventinfo) => {
+        var attribute = getAttribute(eventinfo.newValue)
+        var modifier = universalModifier(attribute);
+        var xpbonus = 0;
+        if (attribute >= 13) {
+            xpbonus = 5;
+        }
+        setAttrs({
+            CHA: attribute,
+            chamod: modifier,
+            chaxp: xpbonus
+        });
+    });
+    
+    on("change:WIS change:CHA change:INT change:STR change:DEX change:CON change:PRI", () => {
+        getAttrs(["wisxp","chaxp","PRI"], (values) => {
+            var primaryAttr = values.PRI;
+            getAttrs([primaryAttr], (val) => {
+                var prime = val[primaryAttr];
+                var bonus = 0;
+                bonus += parseInt(values.wisxp) || 0;
+                bonus += parseInt(values.chaxp) || 0;
+                if (prime >= 13) {
+                    bonus += 5;
+                    if (prime >= 15) {
+                        bonus += 5;
+                    }
                 }
-            }
-            else if (carac>8 && carac<13) {
-                tohit = 0;
-                ac = 0;
-            }
-            else if (carac > 12) {
-                tohit = 1;
-                if (typeac == 0) {
-                    ac = 1;
-                } else {
-                    ac = -1;
-                }
-            }
-            setAttrs({
-                missilehitbonus: tohit,
-                dexac: ac
+                setAttrs({
+                    bonusxppct: bonus,
+                });
             });
         });
     });
-    on("change:CON", function(eventinfo){
-        var carac = parseInt(eventinfo.newValue) || 0;
-        var hp = 0;
-        var raise = 75;
-        if (carac>2 && carac<9) {
-            hp = -1;
-            raise = 50;
-        }
-        else if (carac>8 && carac<13) {
-            hp = 0;
-            raise = 75;
-        }
-        else if (carac > 12) {
-            hp = 1;
-            raise = 100;
-        }
-        setAttrs({
-            hdbonus: hp,
-            raisedeadpct: raise
-        });
-    });
-    on("change:INT", function(eventinfo){
-        var carac = parseInt(eventinfo.newValue) || 0;
-        var lang = 0;
-        var spell = 0;
-        var newspell = 0;
-        var minmax = '2/4';
-        if (carac>2 && carac<8) {
-            lang = 0;
-            spell = 4;
-            newspell = 30;
-            minmax = '2/4';
-        }
-        else if (carac == 7) {
-            lang = 0;
-            spell = 4;
-            newspell = 30;
-            minmax = '2/4';
-        }
-        else if (carac == 8) {
-            lang = 1;
-            spell = 5;
-            newspell = 40;
-            minmax = '3/5';
-        }
-        else if (carac == 9) {
-            lang = 1;
-            spell = 5;
-            newspell = 45;
-            minmax = '3/5';
-        }
-        else if (carac == 10) {
-            lang = 2;
-            spell = 5;
-            newspell = 50;
-            minmax = '4/6';
-        }
-        else if (carac == 11) {
-            lang = 2;
-            spell = 6;
-            newspell = 50;
-            minmax = '4/6';
-        }
-        else if (carac == 12) {
-            lang = 3;
-            spell = 5;
-            newspell = 55;
-            minmax = '4/6';
-        }
-        else if (carac == 13) {
-            lang = 3;
-            spell = 7;
-            newspell = 55;
-            minmax = '5/8';
-        }
-        else if (carac == 14) {
-            lang = 2;
-            spell = 5;
-            newspell = 50;
-            minmax = '4/6';
-        }
-        else if (carac == 15) {
-            lang = 4;
-            spell = 8;
-            newspell = 75;
-            minmax = '6/10';
-        }
-        else if (carac == 16) {
-            lang = 5;
-            spell = 8;
-            newspell = 75;
-            minmax = '6/10';
-        }
-        else if (carac == 17) {
-            lang = 5;
-            spell = 9;
-            newspell = 85;
-            minmax = '7/All';
-        }
-        else if (carac > 17) {
-            lang = 6;
-            spell = 9;
-            newspell = 95;
-            minmax = '8/All';
-        }
-        setAttrs({
-            xtralangs: lang,
-            maxspelllevel: spell,
-            newspellpct: newspell,
-            minmaxspell: minmax
-        });
-    });
-    on("change:WIS", function(eventinfo){
-        var carac = parseInt(eventinfo.newValue) || 0;
-        var clericspell = 0;
-        if (carac > 14) {
-            clericspell = 1;
-        }
-        setAttrs({
-            xtraclericspells: clericspell
-        });
-    });
-    on("change:CHA", function(eventinfo){
-        var carac = parseInt(eventinfo.newValue) || 0;
-        var hirelings = 0;
-        if (carac>2 && carac<5) {
-            hirelings = 1;
-        }
-        else if (carac>4 && carac<7) {
-            hirelings=2;
-        }
-        else if (carac>6 && carac<9) {
-            hirelings=3;
-        }
-        else if (carac>8 && carac<13) {
-            hirelings=4;
-        }
-        else if (carac>12 && carac<16) {
-            hirelings=5;
-        }
-        else if (carac > 15 && carac < 18) {
-            hirelings=6;
-        }
-        else if (carac > 17) {
-            hirelings=7;
-        }
-        setAttrs({
-            xtrahirelings: hirelings
-        });
-    });
-    on("change:typeac", function() {
-        getAttrs(["typeac","DEX"], function(values) {
+    
+    on("change:typeac", () => {
+        getAttrs(["typeac"], (values) => {
             var typeac = parseInt(values.typeac) || 0;
-            var carac = parseInt(values.DEX) || 0;
             var baseac = 0;
-            var ac = 0;
             if(typeac == 0) {
-                baseac = 10;
+                baseac = 12;
             } else {
-                baseac = 9;
-            }
-            if (carac>2 && carac<9) {
-                if (typeac == 0) {
-                    ac = -1;
-                } else {
-                    ac = 1;
-                }
-            }
-            else if (carac>8 && carac<13) {
-                ac = 0;
-            }
-            else if (carac > 12) {
-                if (typeac == 0) {
-                    ac = 1;
-                } else {
-                    ac = -1;
-                }
+                baseac = 7;
             }
             setAttrs({
                 baseac: baseac,
-                dexac: ac
             });
         });
     });
-    on("change:dexac change:baseac change:armorac change:shieldrac change:otherac", function() {
-        getAttrs(["dexac","typeac","baseac","armorac","shieldrac","otherac"], function(values) {
-            var dexac = parseInt(values.dexac) || 0;
+    
+    on("change:dexmod change:baseac change:armorac change:shieldac change:otherac", () => {
+        getAttrs(["dexmod","typeac","baseac","armorac","shieldac","otherac"], (values) => {
+            var dexmod = parseInt(values.dexmod) || 0;
             var typeac = parseInt(values.typeac) || 0;
             var baseac = parseInt(values.baseac) || 0;
             var armorac = parseInt(values.armorac) || 0;
-            var shieldrac = parseInt(values.shieldrac) || 0;
+            var shieldac = parseInt(values.shieldac) || 0;
             var otherac = parseInt(values.otherac) || 0;
             var totalac = 0;
             if (typeac == 0 ) {
-                totalac = baseac + dexac + Math.abs(armorac) + Math.abs(shieldrac) + otherac;
+                totalac = baseac + dexmod + armorac + shieldac + otherac;
             } else {
-                totalac = baseac + dexac - Math.abs(armorac) - Math.abs(shieldrac) + otherac;
+                totalac = baseac - dexmod - armorac - shieldac - otherac;
             }
             setAttrs({
                 AC: totalac
             });
         });
     });
-    on("sheet:opened",function(){
-        getAttrs(["sheetversion"], function(values) {
+    
+    on("sheet:opened", () => {
+        getAttrs(["sheetversion"], (values) => {
             var vers = parseFloat(values.sheetversion) || 0;
-            if (vers < 2.0) {
-                getAttrs(["maxhp","gearwt"], function(values) {
+            if (vers < 1.0) {
+                getAttrs(["maxhp","gearwt"], (values) => {
                     var oldhp = parseInt(values.maxhp) || 0;
                     var oldwt = parseFloat(values.gearwt) || 0.0;
                     setAttrs({
                         hp_max: oldhp,
                         gearweight: oldwt,
-                        sheetversion: 2.1
+                        sheetversion: 1.0
                     });
                 });
             }
         });
     });
-    on("change:repeating_treasure:treasurewt remove:repeating_treasure",function(){
-        getSectionIDs("repeating_treasure", function(idws) {
-            var totwght = 0.0;
-            idws.forEach(function(idw,index,arr){
-                var uwght = "repeating_treasure_" + idw + "_treasurewt";
-                var lng = parseInt(arr.length) || 0;
-                getAttrs(['' + uwght], function(val) {
-                    var swght = parseFloat(val[uwght]) || 0.0;
-                    totwght = totwght + swght;
-                    if ( (index+1) == lng ){
+    
+    on("change:repeating_weapon:wpnwt change:repeating_weapon remove:repeating_weapon", () => {
+        getSectionIDs("repeating_weapon", (ids) => {
+            var totalWeight = 0.0;
+            ids.forEach((id, index, arr) => {
+                var wtString = "repeating_weapon_" + id + "_wpnwt";
+                var end = parseInt(arr.length) || 0;
+                getAttrs([wtString], (val) => {
+                    var wt = parseFloat(val[wtString]) || 0.0;
+                    totalWeight += wt;
+                    if ( (index + 1) == end ){
                         setAttrs({
-                            treasurewt: totwght
+                            weaponwt: totalWeight
                         });
                     }
                 });
             });
+            setAttrs({
+                weaponwt: totalWeight
+            });
         });
     });
-    on("change:repeating_gear:gearqty change:repeating_gear:gearwt remove:repeating_gear",function(){
-        getSectionIDs("repeating_gear", function(idws) {
-            var totwght = 0.0;
-            idws.forEach(function(idw,index,arr){
-                var uqte = "repeating_gear_" + idw + "_gearqty";
-                var uwght = "repeating_gear_" + idw + "_gearwt";
-                var lng = parseInt(arr.length) || 0;
-                getAttrs(['' + uqte,'' + uwght], function(val) {
-                    var sqte = parseFloat(val[uqte]) || 0.0;
-                    var swght = parseFloat(val[uwght]) || 0.0;
-                    totwght = totwght + (sqte * swght);
-                    if ( (index+1) == lng ){
-                        setAttrs({
-                            gearweight: totwght
-                        });
+    
+    on("change:repeating_weapon:wpnismissile change:dexmod change:strmod", () => {
+        getSectionIDs("repeating_weapon", (ids) => {
+            ids.forEach((id) => {
+                var isMissileKey = "repeating_weapon_" + id + "_wpnismissile";
+                var toHitModKey = "repeating_weapon_" + id + "_wpntohitmod";
+                var dmgModKey = "repeating_weapon_" + id + "_wpndmgmod";
+                getAttrs([isMissileKey,"dexmod","strmod"], (vals) => {
+                    var isMissile = parseInt(vals[isMissileKey]) || 0;
+                    var toHitMod = 0;
+                    var dmgMod = 0;
+                    if (isMissile == 1) {
+                        toHitMod = parseInt(vals.dexmod) || 0;
+                    } else {
+                        toHitMod = parseInt(vals.strmod) || 0;
+                        dmgMod = toHitMod;
                     }
+                    setAttrs({
+                        [`${toHitModKey}`] : toHitMod,
+                        [`${dmgModKey}`] : dmgMod
+                    });
                 });
             });
         });
     });
-    on("change:gearweight change:treasurewt", function(){
-        getAttrs(["gearweight","treasurewt"], function(val){
-            var tot = (parseFloat(val.gearweight) || 0.0) + (parseFloat(val.treasurewt) || 0.0);
+    
+    on("change:repeating_gear change:repeating_gear:gearqty change:repeating_gear:gearwt remove:repeating_gear", () => {
+        getSectionIDs("repeating_gear", (ids) => {
+            var totalWeight = 0.0;
+            ids.forEach((id,index,arr) => {
+                var qtyString = "repeating_gear_" + id + "_gearqty";
+                var wtString = "repeating_gear_" + id + "_gearwt";
+                var end = parseInt(arr.length) || 0;
+                getAttrs([qtyString, wtString], (val) => {
+                    var qty = parseFloat(val[qtyString]) || 0.0;
+                    var wt = parseFloat(val[wtString]) || 0.0;
+                    totalWeight += qty * wt;
+                    if ( (index+1) == end ){
+                        setAttrs({
+                            gearweight: totalWeight
+                        });
+                    }
+                });
+            });
+            setAttrs({
+                gearweight: totalWeight
+            });
+        });
+    });
+    
+    on("change:gearweight change:weaponwt", () => {
+        getAttrs(["gearweight","weaponwt"], (val) => {
+            var tot = (parseFloat(val.gearweight) || 0.0) + (parseFloat(val.weaponwt) || 0.0);
             setAttrs({
                 totalweight: tot
+            });
+        });
+    });
+    
+    on("change:totalweight sheet:opened", () => {
+        getAttrs(["totalweight"], (val) => {
+            var weight = (parseInt(val.totalweight) || 0);
+            var pc_bonus = 3;
+            var moves = 12;
+            if (weight > 25 && weight <= 100) {
+                moves = 9;
+            } else if (weight > 100 && weight <= 150) {
+                moves = 6;
+            } else if (weight > 150 && weight <= 250) {
+                moves = 3;
+            } else if (weight > 250) {
+                moves = 1;
+            }
+            moves = Math.min(12, (moves + pc_bonus));
+            setAttrs({
+                movesquares: moves
             });
         });
     });
@@ -363,168 +270,201 @@
 <input type="hidden" name="attr_sheetversion" value="1.0" />
 <div class="sheet-main">
     <div class="sheet-row sheet-border"> <!-- FIRST BOX -->
-        <div class="sheet-mycol sheet-border"> <!-- PERSONNEL FILE -->
-            <div class="sheet-row" style="margin-bottom: 2px;">
-                <span class="sheet-libred" data-i18n="personnel-file">Personnel File</span>
-            </div>
-            <div class="sheet-mycol" style="width: 275px;">
-                <div class="sheet-row">
-                    <span class="sheet-lib1 sheet-wid70" data-i18n="name">Name</span>
-                    <input type="text" class="sheet-biginput" name="attr_character_name" />
+        <div class="sheet-mycol" style="width: 510px;">
+            <div class="sheet-myrow sheet-border"> <!-- PERSONNEL FILE -->
+                <div class="sheet-row" style="margin-bottom: 2px;">
+                    <span class="sheet-libred" data-i18n="personnel-file">Personnel File</span>
                 </div>
-                <div class="sheet-row">
-                    <span class="sheet-lib1 sheet-wid70" data-i18n="nationality">Nationality</span>
-                    <input type="text" class="sheet-longinput" name="attr_nationality" data-i18n-placeholder="nationality" placeholder="Nationality" />
+                <div class="sheet-mycol" style="width: 275px;">
+                    <div class="sheet-row">
+                        <span class="sheet-lib1 sheet-wid80" data-i18n="name">Name</span>
+                        <input type="text" class="sheet-biginput" name="attr_character_name" />
+                    </div>
+                    <div class="sheet-row">
+                        <span class="sheet-lib1 sheet-wid80" data-i18n="nationality">Nationality</span>
+                        <select type="text" class="sheet-shortinput" name="attr_nationality">
+                            <option value="US">American</option>
+                            <option value="GB">British</option>
+                            <option value="CA">Canadian</option>
+                            <option value="FR">French</option>
+                            <option value="DE">German</option>
+                            <option value="RU">Russian</option>
+                        </select>
+                    </div>
+                    <div class="sheet-row">
+                        <span class="sheet-lib1 sheet-wid80" data-i18n="class">Class</span>
+                        <input type="text" class="sheet-medinput" name="attr_class" data-i18n-placeholder="class" placeholder="Class"/>
+                        <span class="sheet-libmin1" data-i18n="primary-attribute">Prime Attr:</span>
+                        <select type="text" class="sheet-tinyinput" name="attr_PRI">
+                            <option value="STR">STR</option>
+                            <option value="INT">INT</option>
+                            <option value="WIS">WIS</option>
+                            <option value="DEX">DEX</option>
+                            <option value="CON">CON</option>
+                            <option value="CHA">CHA</option>
+                        </select>
+                    </div>
+                    <div class="sheet-row">
+                        <span class="sheet-lib1 sheet-wid80" data-i18n="charheight">Height</span>
+                        <input type="text" name="attr_height" class="sheet-shortinput" data-i18n-placeholder="charheight" placeholder="Height" />
+                    </div> 
                 </div>
-                <div class="sheet-row">
-                    <span class="sheet-lib1 sheet-wid70" data-i18n="class">Class</span>
-                    <input type="text" class="sheet-longinput" name="attr_class" data-i18n-placeholder="class" placeholder="Class"/>
+                <div class="sheet-mycol" style="width: 275px;">
+                    <div class="sheet-row">
+                        <span class="sheet-lib1 sheet-wid80" data-i18n="rank">Rank</span>
+                        <input type="text" class="sheet-medinput" name="attr_rank" data-i18n-placeholder="rank" placeholder="Rank" />
+                    </div>
+                    <div class="sheet-row">
+                        <span class="sheet-lib1 sheet-wid80" data-i18n="profession">Profession</span>
+                        <input type="text" name="attr_profession" class="sheet-medinput" data-i18n-placeholder="profession" placeholder="Profession" />
+                    </div>
+                    <div class="sheet-row">
+                        <span class="sheet-lib1 sheet-wid80" data-i18n="gender">Gender</span>
+                        <input type="text" name="attr_gender" class="sheet-shortinput" data-i18n-placeholder="gender" placeholder="Gender" />
+                    </div>
+                    <div class="sheet-row">
+                        <span class="sheet-lib1 sheet-wid80" data-i18n="charweight">Weight</span>
+                        <input type="text" name="attr_weight" class="sheet-shortinput" data-i18n-placeholder="charweight" placeholder="Weight" />
+                    </div>
                 </div>
+            </div> <!-- PERSONNEL FILE -->
+            <div class="sheet-row">  <!-- HEALTH -->
                 <div class="sheet-row">
-                    <span class="sheet-lib1 sheet-wid70" data-i18n="primary">Primary</span>
-                    <input type="text" class="sheet-shortinput" name="attr_primattr" data-i18n-placeholder="attribute" placeholder="Attribute" data-i18n-title="primary-attribute" title="Primary Attribute" />
+                    <span class="sheet-libred" data-i18n="health">Health</span><span class="sheet-libred"> &amp; </span><span class="sheet-libred" data-i18n="experience">Experience</span>
                 </div>
-            </div>
-            <div class="sheet-mycol" style="width: 275px;">
-                <div class="sheet-row">
-                    <span class="sheet-lib1 sheet-wid70" data-i18n="rank">Rank</span>
-                    <input type="text" class="sheet-longinput" name="attr_rank" data-i18n-placeholder="rank" placeholder="Rank" />
-                </div>
-                <div class="sheet-row">
-                    <span class="sheet-lib1 sheet-wid70" data-i18n="profession">Profession</span>
-                    <input type="text" name="attr_profession" class="sheet-medinput" data-i18n-placeholder="profession" placeholder="Profession" />
-                </div>
-                <div class="sheet-row">
-                    <span class="sheet-lib1 sheet-wid70" data-i18n="gender">Gender</span>
-                    <input type="text" name="attr_gender" class="sheet-shortinput" data-i18n-placeholder="gender" placeholder="Gender" />
-                </div>
-                <div class="sheet-row">
-                    <span class="sheet-lib1 sheet-wid70" data-i18n="charheight">Height</span>
-                    <input type="text" name="attr_height" class="sheet-shortinput" data-i18n-placeholder="charheight" placeholder="Height" />
-                    <span class="sheet-lib0" data-i18n="charweight">Weight</span>
-                    <input type="text" name="attr_weight" class="sheet-shortinput" data-i18n-placeholder="charweight" placeholder="Weight" />
-                </div>
-            </div>
-        </div> <!-- PERSONNEL FILE -->
-        <div class="sheet-mycol"> <!-- LOGO and Languages -->
-            <div class="sheet-row" style="text-align: center;">
-                <img style="width:300px;" src="https://raw.githubusercontent.com/chrisesharp/OWB-roll20-sheet/master/OWBCL.png" alt="WWII OWB">
-            </div>
-        </div> <!-- END LOGO and Languages -->
-        <div class="sheet-row">  <!-- LINE 2 -->
-            <div class="sheet-mycol">
-                <div class="sheet-row">
-                    <span class="sheet-libred" data-i18n="health">Health</span><span class="sheet-libred"> & </span><span class="sheet-libred" data-i18n="XP">XP</span>
-                </div>
-                <div class="sheet-row"> <!--XP and Level-->
-                    <div class="sheet-mycol" style="width:310px;">
-                        <span class="sheet-lib1" data-i18n="HP">HP</span>
-                        <input type="number" name="attr_hp" value="0" class="sheet-shortinput" data-i18n-title="current-hp" title="Current HP" />
-                        /
-                        <input type="number" name="attr_hp_max" value="0" class="sheet-shortinput" data-i18n-title="maximum-hp" title="Current HP"/>
-                        <span class="sheet-lib1 sheet-wid30" data-i18n="HD">HD</span>
-                        <button type="roll" name="RollHD" data-i18n-title="roll-hd" title="Roll HD" value="&{template:tmpl} {{pc=@{character_name}}} {{hd=1}} {{roll=[[@{hd}]]}}"></button>
-                        <input type="text" name="attr_hd" class="sheet-medinput" data-i18n-placeholder="hd-example" placeholder="Ex:5d6+5" />
+                <div class="sheet-row"> <!--Level-->
+                    <div class="sheet-mycol" style="width:350px;">
+                        <div class="sheet-row">
+                            <span class="sheet-lib1" data-i18n="HP">HP</span>
+                            <input type="number" name="attr_hp" value="0" class="sheet-shortinput" data-i18n-title="current-hp" title="Current HP" />
+                            /
+                            <input type="number" name="attr_hp_max" value="0" class="sheet-shortinput" data-i18n-title="maximum-hp" title="Maximum HP"/>
+                            <span class="sheet-lib1 sheet-wid30" data-i18n="HD">HD</span>
+                            <button type="roll" name="RollHD" data-i18n-title="roll-hd" title="Roll HD" value="&{template:tmpl} {{pc=@{character_name}}} {{hd=1}} {{roll=[[@{hd}+@{conmod}]]}}"></button>
+                            <input type="text" name="attr_hd" class="sheet-medinput" data-i18n-placeholder="hd-example" placeholder="Ex:5d6+5" />
+                        </div>
+                        <div class="sheet-row"> <!--XP -->
+                            <div class="sheet-mycol" style="width:350px;">
+                                <div class="sheet-row">
+                                    <span class="sheet-lib1" data-i18n="XP">XP</span>
+                                    <input type="number" name="attr_xp" value="0" class="sheet-shortinput" data-i18n-title="current-xp" title="Current XP"/>
+                                    /
+                                    <input type="number" name="attr_nextlvl" value="0" class="sheet-shortinput" data-i18n-title="next-level" title="Next Level"/>
+                                    <span class="sheet-lib2 sheet-wid50" data-i18n="bonus-xp-percent">Bonus XP</span>
+                                    <input type="number" name="attr_bonusxppct" value="0" class="sheet-shortinput" data-i18n-title="bonus-xp-tooltip" title="To calculate XP Bonus: Add 5% for each CHA, WIS and Char's Primary Attribute that is >=13" />
+                                </div>
+                            </div>
+                        </div> <!-- END XP -->
                     </div>
                     <div class="sheet-mycol" style="width:550px;">
-                        <span class="sheet-lib1 sheet-wid80" data-i18n="level">Level</span>
-                        <input type="number" name="attr_level" value="1" class="sheet-stats" />
-                        <span class="sheet-lib1 sheet-wid50" data-i18n="XP">XP</span>
-                        <input type="number" name="attr_xp" value="0" class="sheet-medinput" data-i18n-title="current-xp" title="Current XP"/>
-                        /
-                        <input type="number" name="attr_nextlvl" value="0" class="sheet-medinput" data-i18n-title="next-level" title="Next Level"/>
-                        <span class="sheet-lib2 sheet-wid80" data-i18n="bonus-xp-percent">Bonus XP%</span>
-                        <input type="number" name="attr_bonusxppct" value="0" class="sheet-shortinput" data-i18n-title="bonus-xp-tooltip" title="To calculate XP Bonus: Add 5% for each CHA, WIS and Char's Primary Attribute that is >=13" />
+                        <div class="sheet-row">
+                            <span class="sheet-lib1 sheet-wid50" data-i18n="level">Level</span>
+                            <input type="number" name="attr_level" value="1" class="sheet-stats" />
+                        </div>
+                        <div class="sheet-row">
+                            <span class="sheet-lib1 sheet-wid50" data-i18n="BHB">BHB</span>
+                            <input type="number" name="attr_bhb" value="1" class="sheet-stats" />
+                        </div>
                     </div>
-                </div> <!--END XP and Level-->
-            </div>  <!-- END LINE 2 -->
-        </div> <!-- END LINE 2 -->
+                </div> <!--END Level-->
+            </div> <!-- END HEALTH -->
+        </div>
+        <div class="sheet-mycol"> <!-- LOGO & SAVING THROWS -->
+            <div class="sheet-row" style="text-align: center;"> <!-- LOGO -->
+                <img style="width:300px;" src="https://raw.githubusercontent.com/chrisesharp/OWB-roll20-sheet/master/OWBCL.png" alt="WWII OWB">
+            </div> <!-- END LOGO -->
+            <div class="sheet-mycol sheet-border" style="width: 305px;"> <!--SAVING THROWS-->
+                <div class="sheet-row">
+                    <span class="sheet-libred" data-i18n="saving-throw">Saving Throw</span>
+                    <button type="roll" name="RollSavingThrow" data-i18n-title="roll-base-saving-throw" title="Roll base Saving Throw" value="&{template:tmpl} {{pc=@{character_name}}} {{save=1}} {{roll=[[1d20cs20cf1]]}} {{target=[[@{savingthrow}]]}}"></button>
+                    <input type="number" name="attr_savingthrow" value="15" class="sheet-shortinput" />
+                </div>
+                <div class="sheet-row">
+                    <span class="sheet-lib1" data-i18n="bonuses">Bonuses</span>:
+                </div>
+                <fieldset class="repeating_savingthrowbonus">
+                    <div class="sheet-row">
+                        <input type="text" name="attr_stbonus" data-i18n-placeholder="saving-throw-bonus-note" placeholder="Ex: against explosions." />
+                        <button type="roll" name="RollSavingThrowBonus" data-i18n-title="roll-bonus-saving-throw" title="Roll bonus Saving Throw" value="&{template:tmpl} {{pc=@{character_name}}} {{name=@{stbonus}}} {{save=1}} {{roll=[[1d20cs20cf1+@{stbonusvalue}]]}} {{target=[[@{savingthrow}]]}}"></button>
+                        <input type="number" name="attr_stbonusvalue" value="2" class="sheet-shortinput" />
+                    </div>
+                </fieldset>
+            </div> <!-- END SAVING THROWS -->
+        </div> <!-- END LOGO & SAVING THROWS -->
     </div> <!-- END FIRST BOX -->
-        <div class="sheet-row sheet-border"> <!-- SECOND BOX -->
+    <div class="sheet-row sheet-border"> <!-- SECOND BOX -->
         <div class="sheet-row"> <!-- LINE 3 -->
-            <div class="sheet-mycol sheet-border" style="width:306px;"> <!--ATTRIBUTES-->
+            <div class="sheet-mycol sheet-border" style="width:250px;"> <!--ATTRIBUTES-->
                 <div class="sheet-row">
-                    <span class="sheet-libred" data-i18n="attributes">Attributes</span>
+                    <span class="sheet-libred" data-i18n="attribute">Attribute</span>
+                    <span class="sheet-libred" data-i18n="score">Score</span>
+                    <span class="sheet-libred" data-i18n="modifier">Modifier</span>
                 </div>
                 <div class="sheet-row">
-                    <span class="sheet-lib0 sheet-wid30" data-i18n="STR">STR</span>
+                    <span class="sheet-lib0 sheet-wid70" data-i18n="STR">STR</span>
+                    <span class="sheet-lib0 sheet-wid10"></span>
                     <input type="number" name="attr_STR" value="0" class="sheet-stats" />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="to-hit">To-Hit</span>
-                    <input type="number" name="attr_meleehitbonus" value="0"class="sheet-tinyinput" data-i18n-title="melee-to-hit-mod" title="Melee To-Hit Modifier. Automatically calculted when STR is modified. Can be overriden." />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="damage">Damage</span>
-                    <input type="number" class="sheet-tinyinput" name="attr_meleedmgbonus" value="0" data-i18n-title="melee-damage-modifier" title="Melee Damage Modifier. Automatically calculted when STR is modified. Can be overriden."/>
-                </div>
-                <div class="sheet-row" style="padding-left: 72px;">
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="carry">Carry</span>
-                    <input type="number" class="sheet-tinyinput" name="attr_carrybonus" value="0" data-i18n-title="carry-modifier" title="Carry Modifier. Automatically calculted when STR is modified. Can be overriden."/>
-                    <span class="sheet-libmin1" style="width:39px;" data-i18n="doors">Doors</span>
-                    <button type="roll" name="RollOpenDoor" data-i18n-title="open-doors" title="Open Doors" value="&{template:tmpl} {{pc=@{character_name}}} {{name=^{open-doors}}} {{talent=1}} {{roll=[[1d6cs1cf6]]}} {{target=[[@{opendoors}]]}}" /></button>
-                    <input type="number" class="sheet-tinyinput" name="attr_opendoors" value="1" data-i18n-title="open-doors-title" title="Open Doors. Automatically calculted when STR is modified. Can be overriden."/>
+                    <span class="sheet-lib0 sheet-wid10"></span>
+                    <input type="number" name="attr_strmod" value="0"class="sheet-tinyinput" data-i18n-title="melee-to-hit-mod" title="Melee To-Hit/Damage modifier. Automatically calculated when STR is modified. Can be overriden." />
                 </div>
                 <div class="sheet-row">
-                    <span class="sheet-lib0 sheet-wid30" data-i18n="DEX">DEX</span>
-                    <input type="number" class="sheet-stats" name="attr_DEX" value="0" />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="to-hit">To-Hit</span>
-                    <input type="number" name="attr_missilehitbonus" class="sheet-tinyinput" value="0" data-i18n-title="missile-to-hit-mod" title="Missile Weapon To-Hit Bonus/Penalty. Automatically calculted when DEX is modified. Can be overriden."/>
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="AC+">AC+</span>
-                    <input type="number" name="attr_dexac" class="sheet-tinyinput" value="0" data-i18n-title="effect-on-ac" title="Effect on Armor Class. If DEX is modified, will be automatically calculted, depending on the Ascending or Descending AC choice. Can be overriden." />
-                </div>
-                <div class="sheet-row">
-                    <span class="sheet-lib0 sheet-wid30" data-i18n="CON">CON</span>
-                    <input type="number" name="attr_CON" value="0" class="sheet-stats" />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="hit-dice+">Hit Dice+</span>
-                    <input type="number" name="attr_hdbonus" class="sheet-tinyinput" value="0" data-i18n-title="hp-mod" title="Hit Point Modifier (per hit die). Automatically calculted when CON is modified. Can be overriden." />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="raise-dead%">Raise Dead%</span>
-                    <input type="number" name="attr_raisedeadpct" value="0" class="sheet-tinyinput" data-i18n-title="raise-dead-survival" title="Raise Dead Survival. Automatically calculted when CON is modified. Can be overriden." />
-                </div>
-                <div class="sheet-row">
-                    <span class="sheet-lib0 sheet-wid30" data-i18n="INT">INT</span>
+                    <span class="sheet-lib0 sheet-wid70" data-i18n="INT">INT</span>
+                    <span class="sheet-lib0 sheet-wid10"></span>
                     <input type="number" class="sheet-stats" name="attr_INT" value="0" />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="spell-level">Spell level</span>
-                    <input type="number" name="attr_maxspelllevel" class="sheet-tinyinput" value="0" data-i18n-title="maximum-spell-level" title="Maximum Spell Level. Automatically calculted when INT is modified. Can be overriden." />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="languages">Languages</span>
-                    <input type="number" name="attr_xtralangs" class="sheet-tinyinput" value="0" data-i18n-title="maximum-additional-languages" title="Maximum Additional Languages. Automatically calculted when INT is modified. Can be overriden." />
-                </div>
-                <div class="sheet-row" style="padding-left: 72px;">
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="new-spell%">New Spell%</span>
-                    <input type="number" class="sheet-tinyinput" name="attr_newspellpct" value="0" data-i18n-title="chance-new-spell" title="Chance to Understand New Spell. Automatically calculted when INT is modified. Can be overriden." />
-                    <span class="sheet-libmin1" data-i18n="min-max-spells">Min/Max Spells</span>
-                    <input type="text" class="sheet-tinyinput" name="attr_minmaxspell" value="0/0" data-i18n-title="min-max-spells-title" title="Min/Max Spells. Automatically calculted when INT is modified. Can be overriden."/>
+                    <span class="sheet-lib0 sheet-wid10"></span>
+                    <input type="number" name="attr_intmod" class="sheet-tinyinput" value="0" data-i18n-title="maximum-additional-languages" title="Automatically calculated when INT is modified. Can be overriden." />
                 </div>
                 <div class="sheet-row">
-                    <span class="sheet-lib0 sheet-wid30" data-i18n="WIS">WIS</span>
+                    <span class="sheet-lib0 sheet-wid70" data-i18n="WIS">WIS</span>
+                    <span class="sheet-lib0 sheet-wid10"></span>
                     <input type="number" name="attr_WIS" class="sheet-stats" value="0" />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="cleric-spells+">Cleric Spells+</span>
-                    <input type="number" name="attr_xtraclericspells" class="sheet-tinyinput" value="0" data-i18n-title="cleric-spells-plus" title="Additional first-level Cleric spell. Automatically calculted when WIS is modified. Can be overriden." />
+                    <span class="sheet-lib0 sheet-wid10"></span>
+                    <input type="number" name="attr_wismod" class="sheet-tinyinput" value="0" data-i18n-title="wisdom-plus" title="Automatically calculated when WIS is modified. Can be overriden." />
                 </div>
                 <div class="sheet-row">
-                    <span class="sheet-lib0 sheet-wid30" data-i18n="CHA">CHA</span>
+                    <span class="sheet-lib0 sheet-wid70" data-i18n="CON">CON</span>
+                    <span class="sheet-lib0 sheet-wid10"></span>
+                    <input type="number" name="attr_CON" value="0" class="sheet-stats" />
+                    <span class="sheet-lib0 sheet-wid10"></span>
+                    <input type="number" name="attr_conmod" class="sheet-tinyinput" value="0" data-i18n-title="hp-mod" title="Automatically calculated when CON is modified. Can be overriden." />
+                </div>
+                <div class="sheet-row">
+                    <span class="sheet-lib0 sheet-wid70" data-i18n="DEX">DEX</span>
+                    <span class="sheet-lib0 sheet-wid10"></span>
+                    <input type="number" class="sheet-stats" name="attr_DEX" value="0" />
+                    <span class="sheet-lib0 sheet-wid10"></span>
+                    <input type="number" name="attr_dexmod" class="sheet-tinyinput" value="0" data-i18n-title="missile-to-hit-mod" title="Missile Weapon To-Hit Bonus/Penalty. Automatically calculted when DEX is modified. Can be overriden."/>
+                </div>
+                <div class="sheet-row">
+                    <span class="sheet-lib0 sheet-wid70" data-i18n="CHA">CHA</span>
+                    <span class="sheet-lib0 sheet-wid10"></span>
                     <input type="number" class="sheet-stats" name="attr_CHA" value="0" />
-                    <span class="sheet-libmin1 sheet-wid70" data-i18n="hirelings">Hirelings</span>
-                    <input type="number" name="attr_xtrahirelings" value="0" class="sheet-tinyinput" data-i18n-title="extra-hirelings" title="Maximum Number of Special Hirelings. Automatically calculted when CHA is modified. Can be overriden." />
+                    <span class="sheet-lib0 sheet-wid10"></span>
+                    <input type="number" name="attr_chamod" value="0" class="sheet-tinyinput" data-i18n-title="reaction-modifier" title="Reaction modifier. Automatically calculated when CHA is modified. Can be overriden." />
                 </div>
             </div> <!--END ATTRIBUTES-->
-            <div style="display: inline-block;">
+            <div style="display: inline-block; width:310px;">
                 <div class="sheet-row"> <!-- DEF & ST -->
-                    <div class="sheet-mycol"  style="margin-top: 4px;"> <!--DEFENSE-->
+                    <div class="sheet-mycol"  style="margin-top: 5px;"> <!--DEFENSE-->
                         <div class="sheet-row">
                                 <span class="sheet-libred" data-i18n="defense">Defense</span>
                         </div>
                         <div class="sheet-row">
                             <span class="sheet-lib2 sheet-wid50" data-i18n="base-ac">Base AC</span>
                             <div style="display: inline-block; width: 110px; text-align: center;">
-                                <input type="radio" name="attr_typeac" value="0" checked data-i18n-title="ascending-ac" title="Ascending AC System">
+                                <input type="radio" name="attr_typeac" value="0" data-i18n-title="ascending-ac" title="Ascending AC System">
                                     <span class="sheet-libmin1" data-i18n="asc-ac">Asc.</span>
                                 </input>
-                                <input type="radio" name="attr_typeac" value="1" data-i18n-title="descending-ac" title="Descending AC System">
+                                <input type="radio" name="attr_typeac" value="1" checked="true" data-i18n-title="descending-ac" title="Descending AC System">
                                     <span class="sheet-libmin1" data-i18n="desc-ac">Desc.</span>
                                 </input>
                             </div>
                             <input type="number" name="attr_baseac" value="10" class="sheet-shortinput" />
                         </div>
                         <div class="sheet-row">
-                            <span class="sheet-lib2 sheet-wid50" style="margin-right: 110px;" data-i18n="dex-mod">DEX mod.</span>
-                            <input type="number" name="attr_dexacrep" value="[[@{dexac}]]" class="sheet-shortinput" disabled />
+                            <span class="sheet-lib2 sheet-wid50" data-i18n="dex-mod">DEX mod.</span>
+                            <span class="sheet-lib2 sheet-wid110"></span>
+                            <input type="number" name="attr_dexmod" value="0" readonly class="sheet-shortinput" />
                         </div>
                         <div class="sheet-row">
                             <span class="sheet-lib2 sheet-wid50" data-i18n="armor">Armor</span>
@@ -534,7 +474,7 @@
                         <div class="sheet-row">
                             <span class="sheet-lib2 sheet-wid50" data-i18n="shield">Shield</span>
                             <input type="text" class="sheet-medinput" name="attr_shieldname" data-i18n-placeholder="shield-name" placeholder="Shield name" />
-                            <input type="number" class="sheet-shortinput" value="0" name="attr_shieldrac" data-i18n-title="shield-ac-effect" title="Shield effect on AC. Use either a positive or negative value, as the total AC will be calculted using an absolute value, depending on the Ascending or Descending AC choice."/>
+                            <input type="number" class="sheet-shortinput" value="0" name="attr_shieldac" data-i18n-title="shield-ac-effect" title="Shield effect on AC. Use either a positive or negative value, as the total AC will be calculted using an absolute value, depending on the Ascending or Descending AC choice."/>
                         </div>
                         <div class="sheet-row">
                             <span class="sheet-lib2 sheet-wid50" data-i18n="other">Other</span>
@@ -543,110 +483,124 @@
                         </div>
                         <div class="sheet-row" style="text-align: right;">
                             <span class="sheet-lib1" data-i18n="total-ac">Total AC</span>
-                            <input type="number" name="attr_AC" value="10"class="sheet-shortinput" style="font-weight: bold;" data-i18n-title="total-ac-title" title="Final AC. Automatically calculted from the DEX, Armor, Shield, Other AC modifiers and the Ascending or Descending choice, but can be overriden." />
+                            <input type="number" name="attr_AC" value="10" readonly class="sheet-stats" style="font-weight: bold;" data-i18n-title="total-ac-title" title="Final AC. Automatically calculted from the DEX, Armor, Shield, Other AC modifiers and the Ascending or Descending choice, but can be overriden." />
                         </div>
                     </div> <!--END DEFENSE-->
-                    <div class="sheet-mycol sheet-border" style="width: 305px;"> <!--SAVING THROWS-->
-                        <div class="sheet-row">
-                            <span class="sheet-libred" data-i18n="saving-throw">Saving Throw</span>
-                            <button type="roll" name="RollSavingThrow" data-i18n-title="roll-base-saving-throw" title="Roll base Saving Throw" value="&{template:tmpl} {{pc=@{character_name}}} {{save=1}} {{roll=[[1d20cs20cf1]]}} {{target=[[@{savingthrow}]]}}"></button>
-                            <input type="number" name="attr_savingthrow" value="15" class="sheet-shortinput" />
-                        </div>
-                        <div class="sheet-row">
-                            <span class="sheet-lib1" data-i18n="bonuses">Bonuses</span>:
-                        </div>
-                        <fieldset class="repeating_savingthrowbonus">
-                            <div class="sheet-row">
-                                <input type="text" name="attr_stbonus" data-i18n-placeholder="saving-throw-bonus-note" placeholder="Ex: against being paralyzed or poisoned" />
-                                <button type="roll" name="RollSavingThrowBonus" data-i18n-title="roll-bonus-saving-throw" title="Roll bonus Saving Throw" value="&{template:tmpl} {{pc=@{character_name}}} {{name=@{stbonus}}} {{save=1}} {{roll=[[1d20cs20cf1+@{stbonusvalue}]]}} {{target=[[@{savingthrow}]]}}"></button>
-                                <input type="number" name="attr_stbonusvalue" value="2" class="sheet-shortinput" />
-                            </div>
-                        </fieldset>
-                    </div> <!-- END SAVING THROWS -->
                 </div> <!-- END DEF & ST -->
-                <div class="sheet-mycol" style="width:550px; margin-top: 4px;">
-                    <div class="sheet-row"> <!-- MOVEMENT -->
-                        <span class="sheet-libred" data-i18n="movement">Movement</span>
-                        <span class="sheet-lib2 sheet-wid80" data-i18n="move-squares">Move Squares</span>
-                        <input type="number" name="attr_movesquares" value="4" class="sheet-shortinput" data-i18n-title="movesquares-title" title="Base movement. Not calculted automatically. Has to be input manually, depending on the house rules and distance measurement used in the game." />
-                    </div>
-                    <div class="sheet-row">
-                        <span class="sheet-lib2 sheet-wid70" data-i18n="total-weight">Total Wt.</span>
-                        <input type="number" name="attr_totalweight" value="0" class="sheet-medinput" data-i18n-title="totalweight-title" title="Total weight. Automatically calculted based on the treasure and gear weights. Can be overriden." />
-                        =
-                        <span class="sheet-lib2 sheet-wid70" data-i18n="gear-wt">Gear Wt.</span>
-                        <input type="number" name="attr_gearweight" value="0" class="sheet-medinput" data-i18n-title="gear-wt-title" title="Total gear weight. Automatically calculted based on (quantity * weight) of each item in the gear list. Can be overriden."  />
-                        +
-                        <span class="sheet-lib2 sheet-wid70" data-i18n="treasure-wt">Treasure Wt.</span>
-                        <input type="number" name="attr_treasurewt" value="0" class="sheet-medinput" data-i18n-title="treasurewt-title" title="Total weight of treasures. Automatically calculted based on the weight of each item in the treasure list. Can be overriden." />
-                    </div>
-                    <div class="sheet-row">
-                        <span class="sheet-lib2 sheet-wid80" data-i18n="0-75-lbs">0-75 lbs</span>:<span data-i18n="4-sqrs">4 sqrs</span>
-                        <span class="sheet-lib2 sheet-wid80" data-i18n="76-100-lbs">76-100 lbs</span>:<span data-i18n="3-sqrs">3 sqrs</span>
-                        <span class="sheet-lib2 sheet-wid80" data-i18n="101-150-lbs">101-150 lbs</span>:<span data-i18n="2-sqrs">2 sqrs</span>
-                        <span class="sheet-lib2 sheet-wid80" data-i18n="151-300-lbs">151-300 lbs</span>:<span data-i18n="1-sqr">1 sqr</span>
-                    </div> <!-- END MOVEMENT -->
-                </div>
             </div>
+            <div class="sheet-mycol sheet-border" style="width:230px;"> <!-- PHOTO -->
+                <div class="sheet-row" style="text-align: center;">
+                    <div class="avatar" style="width: 95%;">
+                        <textarea class="sheet-photo" style="background-image:url('https://s3.amazonaws.com/files.d20.io/images/128533853/7R1nvzfZg_BOlv7zVI3H_g/thumb.jpg?1588085037');">
+                        </textarea>
+                    </div>
+                </div>
+            </div> <!-- END PHOTO -->
         </div>  <!-- END LINE 3 -->
         <div class="sheet-row">  <!-- LINE 4 -->
-            <div class="sheet-mycol"> <!-- COL1 Weapons & Abilities -->
+            <div class="sheet-mycol" style="width:550px; margin-top: 4px;">
+                <div class="sheet-row"> <!-- MOVEMENT -->
+                    <span class="sheet-libred" data-i18n="movement">Movement</span>
+                    <span class="sheet-lib2 sheet-wid80" data-i18n="move-squares">Move Squares</span>
+                    <input type="number" name="attr_movesquares" value="12" class="sheet-shortinput" data-i18n-title="movesquares-title" title="Base movement. Calculated automatically, from applying weight modifiers." />
+                </div>
+                <div class="sheet-row">
+                    <span class="sheet-lib2 sheet-wid70" data-i18n="total-weight">Total Wt.</span>
+                    <input type="number" name="attr_totalweight" readonly value="0" class="sheet-medinput" data-i18n-title="totalweight-title" title="Total weight. Automatically calculted based on the weapons and gear weights. Can be overriden." />
+                    =
+                    <span class="sheet-lib2 sheet-wid70" data-i18n="gear-wt">Gear Wt.</span>
+                    <input type="number" name="attr_gearweight" value="0" class="sheet-medinput" data-i18n-title="gear-wt-title" title="Total gear weight. Automatically calculted based on (quantity * weight) of each item in the gear list. Can be overriden."  />
+                    +
+                    <span class="sheet-lib2 sheet-wid70" data-i18n="weapons-wt">Weapons Wt.</span>
+                    <input type="number" name="attr_weaponwt" value="0" class="sheet-medinput" data-i18n-title="weaponswt-title" title="Total weight of weapons. Automatically calculted based on the weight of each item in the weapons list. Can be overriden." />
+                </div> <!-- END MOVEMENT -->
+            </div>
+        </div> <!-- END LINE 4 -->
+        <div class="sheet-row">  <!-- LINE 5 -->
+            <div class="sheet-mycol"> <!-- COL1 Weapons & Gear -->
                 <div class="sheet-row"> <!-- WEAPONS -->
                     <div class="sheet-mycol sheet-border" style="width:468px;"> 
                         <span class="sheet-libred" data-i18n="weapons">Weapons</span>
-                        <fieldset class="repeating_weapons">
+                        <div class="sheet-row">
+                            <span class="sheet-lib2l sheet-wid110" data-i18n="weapon-name">Weapon</span>
+                            <span class="sheet-lib2l sheet-wid30" data-i18n="missile?">Missile?</span>
+                            <span class="sheet-lib2l sheet-wid70" data-i18n="dmg-roll">Dmg</span>
+                            <span class="sheet-lib2l sheet-wid30" data-i18n="wpnrof">ROF</span>
+                            <span class="sheet-lib2l sheet-wid50" data-i18n="range">Range(ft.)</span>
+                            <span class="sheet-lib2l sheet-wid30" data-i18n="wt">Wt(lbs.)</span>
+                        </div>
+                        <fieldset class="repeating_weapon">
                             <div class="sheet-row">
                                 <input type="text" name="attr_wpnname" value="" class="sheet-medinput sheet-bold" data-i18n-placeholder="weapon-name" placeholder="Weapon name" />
-                                <button type="roll" name="RollAttack" data-i18n-title="roll-attack" title="Roll attack (to hit and damage rolls)" value="&{template:tmpl} {{pc=@{character_name}}} {{name=@{wpnname}}} {{attack=1}} {{roll=[[@{wpnhit}]]}} {{dmg=[[@{wpndmg}]]}}"></button>
-                                <span class="sheet-lib2 sheet-wid50" data-i18n="hit-roll">Hit Roll</span>
-                                <input type="text" class="sheet-shortinput" name="attr_wpnhit" class="sheet-shortinput" value="1d20+0" />
-                                <span class="sheet-lib2 sheet-wid50" data-i18n="dmg-roll">Dmg Roll</span>
-                                <input type="text" class="sheet-shortinput" name="attr_wpndmg" class="sheet-shortinput" value="1d6+0" />
+                                <input type="checkbox" name="attr_wpnismissile" data-i18n-title="missile?" value="1" checked="true"/>
+                                <button type="roll" name="RollAttack" data-i18n-title="roll-attack" title="Roll attack (to hit and damage rolls)" value="&{template:tmpl} {{pc=@{character_name}}} {{name=@{wpnname}}} {{attack=1}} {{roll=[[1d20cs20cf1+@{bhb}+@{wpntohitmod}]]}} {{dmg=[[@{wpndmg}+@{wpndmgmod}]]}}"></button>
+                                <input type="text" class="sheet-shortinput" name="attr_wpndmg" value="1d6+1" />
+                                <span class="sheet-libmin1 sheet-wid10"></span>
+                                <input type="number" class="sheet-tinyinput" name="attr_wpnrof" value="1" />
+                                <input type="number" class="sheet-shortinput" name="attr_wpnrange" value="0" />
+                                <span class="sheet-libmin1 sheet-wid10"></span>
+                                <input type="number" class="sheet-shortinput" name="attr_wpnwt" value="1" />
+                                <input type="hidden" name="attr_wpntohitmod" value="0" />
+                                <input type="hidden" name="attr_wpndmgmod" value="0" />
                             </div>
                         </fieldset>
                     </div>
                 </div><!-- END WEAPONS -->
-                <div class="sheet-row"> <!-- ABILITIES -->
+
+                <div class="sheet-row"> <!-- GEAR -->
                     <div class="sheet-mycol sheet-border" style="width:468px;">
-                        <span class="sheet-libred" data-i18n="abilities">Abilities</span>
-                        <fieldset class="repeating_magic">
+                        <span class="sheet-libred" data-i18n="gear">Gear</span>/<span class="sheet-libred" data-i18n="equipment">Equipment</span>
+                        <div class="sheet-row">
+                            <span class="sheet-lib2l" style="width: 300px;" data-i18n="item">Item</span>
+                            <span class="sheet-lib2l sheet-wid50" data-i18n="qty">Qty</span>
+                            <span class="sheet-lib2l sheet-wid30" data-i18n="wt">Wt</span>
+                        </div>
+                        <fieldset class="repeating_gear">
                             <div class="sheet-row">
-                                <input type=checkbox name="attr_magicused" />
-                                <input type="text" name="attr_magicname" class="sheet-longinput" data-i18n-placeholder="ability-name" placeholder="Ability name" />
-                                <button type="roll" name="RollMagic" data-i18n-title="roll-magic" title="Roll (ex: 2d4)" value="&{template:tmpl} {{pc=@{character_name}}} {{name=@{magicname}}} {{talent=1}} {{roll=[[@{magicroll}]]}} {{target=[[0]]}}"></button>
-                                <input type="text" name="attr_magicroll" class="sheet-medinput" data-i18n-placeholder="roll-magic" placeholder="Roll (ex:1d100)" />
+                                <input type="text" name="attr_gearname" class="sheet-longinput sheet-bold" style="width: 250px;" data-i18n-placeholder="item-name" placeholder="Item name" />
+                                <span class="sheet-lib2l sheet-wid30">:</span>
+                                <input type="number" class="sheet-shortinput" name="attr_gearqty" value="1" />
+                                <input type="number" class="sheet-shortinput" name="attr_gearwt"  value="1" />
                             </div>
                         </fieldset>
                     </div>
-                </div> <!-- END ABILITIES -->
-            </div> <!-- END COL1 Weapons & Abilities -->
-            <div class="sheet-mycol" style="width: 388px;"> <!-- COL2 EQUIPEMENT -->
-                <div class="sheet-lib">
-                    <span class="sheet-libred" data-i18n="languages-fmb">Languages</span>
+                </div> <!-- END GEAR -->
+            </div> <!-- END COL1 Weapons & Gear -->
+            <div class="sheet-mycol" style="width: 338px;"> <!-- COL2 LANGUAGES & ABILITIES -->
+                <div class="sheet-row">
+                    <div class="sheet-lib">
+                        <span class="sheet-libred" data-i18n="languages">Languages</span>
+                    </div>
+                    <span class="sheet-lib2l" style="width: 150px;" data-i18n="language">Language</span>
+                    <span class="sheet-lib2l" style="width: 50px;" data-i18n="fluency">fluency</span>
+                    <fieldset class="repeating_language">
+                        <div class="sheet-row">
+                            <input type="text" name="attr_lang" style="width: 150px;" data-i18n-placeholder="language" placeholder="english" />
+                            <select type="number" name="attr_lang_fluency">
+                                <option value="F">Fluent</option>
+                                <option value="M">Moderate</option>
+                                <option value="B">Basic</option>
+                            </select>
+                        </div>
+                    </fieldset>
                 </div>
-                <span class="sheet-lib2l" style="width: 150px;" data-i18n="language">Language</span>
-                <span class="sheet-lib2l" style="width: 50px;" data-i18n="fluency">fluency</span>
-                <fieldset class="repeating_treasure">
-                    <input type="text" name="attr_lang" style="width: 150px;" data-i18n-placeholder="language" placeholder="english" />
-                    <select type="number" name="attr_lang_fluency">
-                        <option value="F">Fluent</option>
-                        <option value="M">Moderate</option>
-                        <option value="B">Basic</option>
-                    </select>
-                </fieldset>
-                <div class="sheet-lib">
-                    <span class="sheet-libred" data-i18n="gear">Gear</span>/<span class="sheet-libred" data-i18n="equipment">Equipment</span>
+                <div class="sheet-row">
+                    <span class="sheet-lib2l" style="width: 300px">
+                        <hr/>
+                    </span>
                 </div>
-                <span class="sheet-lib2l" style="width: 250px;" data-i18n="name">Name</span>
-                <span class="sheet-lib2l" style="width: 50px;" data-i18n="qty">Qty</span>
-                <span class="sheet-lib2l" data-i18n="wt">Wt</span>
-                <fieldset class="repeating_gear">
-                    <input type="text" name="attr_gearname" style="width: 250px;" data-i18n-placeholder="item-name" placeholder="Item name" />
-                    <input type="number" name="attr_gearqty" value="1" />
-                    <input type="number" name="attr_gearwt"  value="0" />
-                </fieldset>
-            </div> <!-- END COL2 EQUIPEMENT -->
-        </div>  <!-- END LINE 4 -->
+                <div class="sheet-row">
+                    <span class="sheet-libred" data-i18n="abilities">Abilities</span>
+                    <fieldset class="repeating_abilities">
+                        <div class="sheet-row">
+                            <input type="text" name="attr_abilityname" class="sheet-longinput" data-i18n-placeholder="ability-name" placeholder="Ability name" />
+                            <button type="roll" name="RollAbility" data-i18n-title="roll-ability" title="Roll (ex: 2d4)" value="&{template:tmpl} {{pc=@{character_name}}} {{name=@{abilityname}}} {{talent=1}} {{roll=[[@{abilityroll}]]}} {{target=[[0]]}}"></button>
+                            <input type="text" name="attr_abilityroll" class="sheet-medinput" data-i18n-placeholder="roll-ability" placeholder="Ex:1d100" />
+                        </div>
+                    </fieldset>
+                </div>
+            </div> <!-- END COL2 LANGUAGES & ABILITIES -->
+        </div>  <!-- END LINE 5 -->
     </div> <!-- END SECOND BOX -->
     <div class="sheet-row sheet-border"> <!-- THIRD BOX -->
         <div class="sheet-mycol sheet-border"> <!-- PERSONNEL FILE -->
@@ -654,11 +608,12 @@
                 <span class="sheet-libred" data-i18n="notes">Notes</span>
             </div>
             <div class="sheet-row" style="margin-bottom: 2px;">
-                <textarea class="sheet-libnotes" style="width: 830px;" rows=10>Make notes here.</textarea>
+                <textarea class="sheet-libnotes" style="width: 800px;" rows=15>Make notes here.</textarea>
             </div>
         </div>
     </div> <!-- END THIRD BOX -->
 </div> <!-- === END SHEET === -->
+
 <!-- === TEMPLATE   === -->
 <rolltemplate class="sheet-rolltemplate-tmpl">
     <div class="sheet-tplmain">

@@ -15,7 +15,8 @@ div{
     background-color: transparent;
 }
 div.sheet-main{
-    width: 1130px;
+    display: inline-block;
+    width: 1120px;
     /* min-width: 960px;
     max-width: 960px; */
     text-align: center;
@@ -23,10 +24,20 @@ div.sheet-main{
     background-color : rgb(230, 222, 206);
     background:url('https://github.com/chrisesharp/OWB-roll20-sheet/raw/master/FormPaper.png');
     padding: 4px;
-    border: 112px solid transparent;
-    /* border-image-slice:133 93 51 112;border-image-width:93px 133px 51px 112px;border-image-outset:0px 0px 0px 0px;border-image-repeat:stretch stretch;
-    border-image:url('https://github.com/chrisesharp/OWB-roll20-sheet/raw/master/OWBSheet_border.png') 112; */
+    border: 133px solid transparent;
+    border-image-slice: 133 93 51 112;
+    border-image-width:133px 93px 51px 112px;
+    border-image-outset:0px 0px 0px 0px;
+    border-image-repeat:stretch stretch;
+    border-image:url('https://github.com/chrisesharp/OWB-roll20-sheet/raw/master/OWBSheet_border.png') 133 93 51 112;
 }
+
+textarea.sheet-photo{
+    width: 140px;
+    background-image: url('https://github.com/chrisesharp/OWB-roll20-sheet/raw/master/FormPaper.png');
+    /* background-image:url("https://s3.amazonaws.com/files.d20.io/images/128533853/7R1nvzfZg_BOlv7zVI3H_g/thumb.jpg?1588085037"); */
+}
+
 div.sheet-row{
     display: block;
     text-align: left;
@@ -41,8 +52,8 @@ div.sheet-mycol{
 input, textarea{
     background-color: transparent;
     display: inline-block;
-    padding: 0px 0px 0px 0px;
-    margin: 0px 0px 0px 0px;
+    padding: 0px 0px;
+    margin: 3px 3px;
     /* font-family: 'Homemade Apple', cursive; */
     font-family: 'Special Elite', cursive;
     font-size: 16px;
@@ -51,16 +62,17 @@ input, textarea{
     resize:none;
     z-index: 2;
     border-radius: 0;
-    border-bottom: 1px dotted black;
+    border-bottom: 0px;
+    border-left: 0px;
+    border-right: 0px;
 }
-input:focus, input:hover, textarea:focus, textarea:hover{
+input:focus, input:hover, textarea:focus, textarea:hover, select:hover{
     box-shadow: inset 0px 1px 1px rgba(153,51,51,0.01),0 0 6px rgba(153,51,51,0.5);
     background-color: rgba(153,51,51,0.05);
 }
 textarea{
-    padding: 1px 2px 0px 2px;
-    border-left: 1px dotted black;
-    border-right: 1px dotted black;
+    padding: 5px 5px;
+    margin: 5px 5px;
 }
 input[type="text"]{
     padding: 0px 0px 0px 2px;
@@ -71,12 +83,13 @@ input[type="text"].sheet-inptxt1 {
 }
 input[type="number"]{
     text-align: right;
-    padding: 0px 2px 0px 0px;
+    padding: 2px 2px 0px 0px;
 }
 input[type="number"].sheet-stats{
-    width: 30px;
-    font-size: 20px;
+    width: 50px;
+    font-size: 18px;
     text-align: center;
+    border: 1px solid rgba(11, 11, 11, 0.906);
     -moz-appearance: textfield;
 }
 input[type="number"].sheet-tinyinput {
@@ -90,23 +103,29 @@ input[type="text"].sheet-tinyinput {
 }
 input[type="text"].sheet-shortinput{
     width:60px;
+    border-bottom: 1px dotted black;
 }
 input[type="number"].sheet-shortinput{
     width:45px;
+    border-bottom: 1px dotted black;
 }
 input[type="text"].sheet-medinput{
     width:110px;
+    border-bottom: 1px dotted black;
 }
 input[type="number"].sheet-medinput {
     width:90px;
+    border-bottom: 1px dotted black;
 }
 input[type="text"].sheet-longinput {
-    width:200px;
+    width:160px;
+    border-bottom: 1px dotted black;
 }
 input[type="text"].sheet-biginput{
     width:200px;
     font-weight: bold;
     font-size: 20px;
+    border-bottom: 1px dotted black;
 }
 input[type="number"].sheet-stats::-webkit-inner-spin-button,
 input[type="number"].sheet-stats::-webkit-outer-spin-button {
@@ -114,27 +133,34 @@ input[type="number"].sheet-stats::-webkit-outer-spin-button {
     appearance: none;
 }
 select{
-    background-color: rgba(255,255,255,0.6);
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: transparent;
     padding: 0px;
     margin: 0px;
     height: 18px;
     line-height: 18px;
     max-height: 18px;
-    font-weight:normal;
     font-family: 'Special Elite', cursive;
-    /* font-family: 'Overpass Mono', monospace; */
-    font-size: 14px;
+    font-size: 16px;
+    width: 110px;
     border: none;
+    border-radius: 0px;
     border-bottom: 1px dotted black;
     text-align: center;
-    color: #993333;
+    color: #333;
 }
-select:hover{
-    border: 1px solid #993333;
-}
+
 select.sheet-seldice{
     width: 48px;
 }
+
+select.sheet-tinyinput{
+    width: 33px;
+    font-size: 13px;
+    text-align: center;
+}
+
 button[type="roll"]{
     color: black;
     font-weight: normal;
@@ -162,30 +188,17 @@ button[type="roll"].sheet-bthp:before{
     font-size: 20px;
 }
 
-button[type="roll"].sheet-btrisk{
-}
-
-button[type="roll"].sheet-btrisk:before{
-    font-family: "dicefontd4";
-    content: '0';
-    font-size: 20px;
-}
-button[type="roll"].sheet-btrisk:hover:before{
-    content: 'd';
-}
 .sheet-libred{
     font-size: 18px;
     /* color:#993333; */
     color: black;
     font-weight: bold;
     padding-top:4px;
-    /* font-family: 'Overpass Mono', monospace; */
     font-family: 'Special Elite', cursive;
 }
 .sheet-lib0{
     display: inline-block;
-    text-align: right;
-    /* font-family: 'Overpass Mono', monospace; */
+    text-align: center;
     font-family: 'Special Elite', cursive;
     font-size:14px;
     font-weight:bold;
@@ -195,7 +208,6 @@ button[type="roll"].sheet-btrisk:hover:before{
 .sheet-lib1{
     display: inline-block;
     text-align: right;
-    /* font-family: 'Overpass Mono', monospace; */
     font-family: 'Special Elite', cursive;
     font-size:14px;
     font-weight:bold;
@@ -234,9 +246,9 @@ button[type="roll"].sheet-btrisk:hover:before{
     display: inline-block;
     text-align: left;
     font-family: 'Homemade Apple', cursive;
-    font-size:16px;
+    font-size: 18px;
     font-weight: normal;
-    color:rgba(31, 35, 156, 0.911);
+    color:rgba(31, 35, 156, 0.6);
     margin-right: 4px;
 }
 
@@ -250,6 +262,13 @@ button[type="roll"].sheet-btrisk:hover:before{
     border-color: rgba(0, 0, 0, 0.557);
     padding: 4px;
     margin: 2px;
+
+}
+.sheet-wid10{
+    min-width: 10px;
+}
+.sheet-wid15{
+    min-width: 15px;
 }
 .sheet-wid30{
     min-width: 30px;
@@ -265,6 +284,9 @@ button[type="roll"].sheet-btrisk:hover:before{
 }
 .sheet-wid80{
     min-width: 80px;
+}
+.sheet-wid110{
+    min-width: 110px;
 }
 .sheet-wid120{
     min-width: 120px;
