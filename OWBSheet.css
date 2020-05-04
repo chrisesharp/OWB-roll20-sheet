@@ -20,7 +20,6 @@ div.sheet-main{
     font-size: 13px;
     background-color : rgb(230, 222, 206);
     background:url('https://github.com/chrisesharp/OWB-roll20-sheet/raw/master/OWBSheet_bg.png');
-    /* background-size: cover; */
     border-top: 133px solid transparent;
     border-right: 93px solid transparent;
     border-bottom: 51px solid transparent;
@@ -195,6 +194,17 @@ button[type="roll"].sheet-bthp:before{
     padding-top:4px;
     font-family: 'Special Elite', cursive;
 }
+
+.sheet-libtitle{
+    width: 600px; 
+    margin: auto;
+    text-align: center;
+    font-size: 22px;
+    color: black;
+    font-weight: bold;
+    font-family: 'Special Elite', cursive;
+}
+
 .sheet-lib0{
     display: inline-block;
     text-align: center;

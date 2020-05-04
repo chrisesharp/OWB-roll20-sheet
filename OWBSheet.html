@@ -266,15 +266,17 @@
         });
     });
 </script>
+
 <!-- === SHEET ===  -->
 <input type="hidden" name="attr_sheetversion" value="1.0" />
 <div class="sheet-main">
+    <div class="sheet-libtitle" style="margin: 2px;">
+        <span class="sheet-libtitle" data-i18n="personnel-confidential">CONFIDENTIAL</span>
+    </div>
     <div class="sheet-row sheet-border"> <!-- FIRST BOX -->
         <div class="sheet-mycol" style="width: 510px;">
             <div class="sheet-myrow sheet-border"> <!-- PERSONNEL FILE -->
-                <div class="sheet-row" style="margin-bottom: 2px;">
-                    <span class="sheet-libbold" data-i18n="personnel-file">Personnel File</span>
-                </div>
+               
                 <div class="sheet-mycol" style="width: 275px;">
                     <div class="sheet-row">
                         <span class="sheet-lib1 sheet-wid80" data-i18n="name">Name</span>
@@ -370,12 +372,11 @@
             </div> <!-- END HEALTH -->
         </div>
         <div class="sheet-mycol"> <!-- LOGO & SAVING THROWS -->
-            <div class="sheet-row" style="text-align: center;"> <!-- LOGO -->
-                <img style="width:300px;" src="https://raw.githubusercontent.com/chrisesharp/OWB-roll20-sheet/master/OWBCL.png" alt="WWII OWB">
-            </div> <!-- END LOGO -->
-            <div class="sheet-mycol sheet-border" style="width: 305px;"> <!--SAVING THROWS-->
+            <div class="sheet-mycol sheet-border" style="width: 155px;"> <!--SAVING THROWS-->
                 <div class="sheet-row">
                     <span class="sheet-libbold" data-i18n="saving-throw">Saving Throw</span>
+                </div>
+                <div class="sheet-row">
                     <button type="roll" name="RollSavingThrow" data-i18n-title="roll-base-saving-throw" title="Roll base Saving Throw" value="&{template:tmpl} {{pc=@{character_name}}} {{save=1}} {{roll=[[1d20cs20cf1]]}} {{target=[[@{savingthrow}]]}}"></button>
                     <input type="number" name="attr_savingthrow" value="15" class="sheet-shortinput" />
                 </div>
@@ -384,7 +385,7 @@
                 </div>
                 <fieldset class="repeating_savingthrowbonus">
                     <div class="sheet-row">
-                        <input type="text" name="attr_stbonus" data-i18n-placeholder="saving-throw-bonus-note" placeholder="Ex: against explosions." />
+                        <input type="text" class="sheet-shortinput" name="attr_stbonus" data-i18n-placeholder="saving-throw-bonus-note" placeholder="Ex: against explosions." />
                         <button type="roll" name="RollSavingThrowBonus" data-i18n-title="roll-bonus-saving-throw" title="Roll bonus Saving Throw" value="&{template:tmpl} {{pc=@{character_name}}} {{name=@{stbonus}}} {{save=1}} {{roll=[[1d20cs20cf1+@{stbonusvalue}]]}} {{target=[[@{savingthrow}]]}}"></button>
                         <input type="number" name="attr_stbonusvalue" value="2" class="sheet-shortinput" />
                     </div>
@@ -443,7 +444,7 @@
                     <input type="number" name="attr_chamod" value="0" class="sheet-tinyinput" data-i18n-title="reaction-modifier" title="Reaction modifier. Automatically calculated when CHA is modified. Can be overriden." />
                 </div>
             </div> <!--END ATTRIBUTES-->
-            <div style="display: inline-block; width:310px;">
+            <div style="display: inline-block; width:250px;">
                 <div class="sheet-row"> <!-- DEF & ST -->
                     <div class="sheet-mycol"  style="margin-top: 5px;"> <!--DEFENSE-->
                         <div class="sheet-row">
@@ -488,10 +489,14 @@
                     </div> <!--END DEFENSE-->
                 </div> <!-- END DEF & ST -->
             </div>
-            <div class="sheet-mycol sheet-border" style="width:230px;"> <!-- PHOTO -->
+            <div class="sheet-mycol sheet-border" style="width:160px;"> <!-- PHOTO -->
                 <div class="sheet-row" style="text-align: center;">
                     <div class="avatar" style="width: 95%;">
-                        <textarea class="sheet-photo" style="background-image:url('https://s3.amazonaws.com/files.d20.io/images/128533853/7R1nvzfZg_BOlv7zVI3H_g/thumb.jpg?1588085037');">
+                        <!-- <textarea class="sheet-photo" style="background-image:url('https://s3.amazonaws.com/files.d20.io/images/128533853/7R1nvzfZg_BOlv7zVI3H_g/thumb.jpg?1588085037');"> -->
+                        <textarea class="sheet-photo">
+                            ATTACH
+                            PHOTO 
+                            HERE
                         </textarea>
                     </div>
                 </div>
@@ -519,7 +524,7 @@
         <div class="sheet-row">  <!-- LINE 5 -->
             <div class="sheet-mycol"> <!-- COL1 Weapons & Gear -->
                 <div class="sheet-row"> <!-- WEAPONS -->
-                    <div class="sheet-mycol sheet-border" style="width:468px;"> 
+                    <div class="sheet-mycol sheet-border" style="width:440px;"> 
                         <span class="sheet-libbold" data-i18n="weapons">Weapons</span>
                         <div class="sheet-row">
                             <span class="sheet-lib2l sheet-wid110" data-i18n="weapon-name">Weapon</span>
@@ -548,7 +553,7 @@
                 </div><!-- END WEAPONS -->
 
                 <div class="sheet-row"> <!-- GEAR -->
-                    <div class="sheet-mycol sheet-border" style="width:468px;">
+                    <div class="sheet-mycol sheet-border" style="width:440px;">
                         <span class="sheet-libbold" data-i18n="gear">Gear</span>/<span class="sheet-libbold" data-i18n="equipment">Equipment</span>
                         <div class="sheet-row">
                             <span class="sheet-lib2l" style="width: 300px;" data-i18n="item">Item</span>
@@ -566,17 +571,16 @@
                     </div>
                 </div> <!-- END GEAR -->
             </div> <!-- END COL1 Weapons & Gear -->
-            <div class="sheet-mycol" style="width: 338px;"> <!-- COL2 LANGUAGES & ABILITIES -->
+            <div class="sheet-mycol" style="width: 200px;"> <!-- COL2 LANGUAGES & ABILITIES -->
                 <div class="sheet-row">
                     <div class="sheet-lib">
                         <span class="sheet-libbold" data-i18n="languages">Languages</span>
                     </div>
-                    <span class="sheet-lib2l" style="width: 150px;" data-i18n="language">Language</span>
-                    <span class="sheet-lib2l" style="width: 50px;" data-i18n="fluency">fluency</span>
                     <fieldset class="repeating_language">
                         <div class="sheet-row">
-                            <input type="text" name="attr_lang" style="width: 150px;" data-i18n-placeholder="language" placeholder="english" />
-                            <select type="number" name="attr_lang_fluency">
+                            <input type="text" class="sheet-medinput" name="attr_lang" data-i18n-placeholder="language" placeholder="english" />
+                            <span class="sheet-lib">:</span>
+                            <select type="number" class="sheet-medinput" name="attr_lang_fluency">
                                 <option value="F">Fluent</option>
                                 <option value="M">Moderate</option>
                                 <option value="B">Basic</option>
@@ -585,7 +589,7 @@
                     </fieldset>
                 </div>
                 <div class="sheet-row">
-                    <span class="sheet-lib2l" style="width: 300px">
+                    <span class="sheet-lib2l" style="width: 200px">
                         <hr/>
                     </span>
                 </div>
@@ -593,9 +597,9 @@
                     <span class="sheet-libbold" data-i18n="abilities">Abilities</span>
                     <fieldset class="repeating_abilities">
                         <div class="sheet-row">
-                            <input type="text" name="attr_abilityname" class="sheet-longinput" data-i18n-placeholder="ability-name" placeholder="Ability name" />
+                            <input type="text" name="attr_abilityname" class="sheet-medinput" data-i18n-placeholder="ability-name" placeholder="Ability name" />
                             <button type="roll" name="RollAbility" data-i18n-title="roll-ability" title="Roll (ex: 2d4)" value="&{template:tmpl} {{pc=@{character_name}}} {{name=@{abilityname}}} {{talent=1}} {{roll=[[@{abilityroll}]]}} {{target=[[0]]}}"></button>
-                            <input type="text" name="attr_abilityroll" class="sheet-medinput" data-i18n-placeholder="roll-ability" placeholder="Ex:1d100" />
+                            <input type="text" name="attr_abilityroll" class="sheet-shortinput" data-i18n-placeholder="roll-ability" placeholder="3d6" />
                         </div>
                     </fieldset>
                 </div>
@@ -608,7 +612,7 @@
                 <span class="sheet-libbold" data-i18n="notes">Notes</span>
             </div>
             <div class="sheet-row" style="margin-bottom: 2px;">
-                <textarea class="sheet-libnotes" style="width: 800px;" rows=15>Make notes here.</textarea>
+                <textarea class="sheet-libnotes" style="width: 650px;" rows=15>Make notes here.</textarea>
             </div>
         </div>
     </div> <!-- END THIRD BOX -->
