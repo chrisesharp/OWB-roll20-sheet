@@ -20,12 +20,12 @@ div.sheet-main{
     font-size: 13px;
     background-color : rgb(230, 222, 206);
     background:url('https://github.com/chrisesharp/OWB-roll20-sheet/raw/master/OWBSheet_bg.png');
-    background-size: cover;
+    /* background-size: cover; */
     border-top: 133px solid transparent;
     border-right: 93px solid transparent;
     border-bottom: 51px solid transparent;
     border-left: 112px solid transparent;
-    border-image-slice: 133 93 51 112;
+    border-image-slice: 133px 93px 51px 112px;
     border-image-width:133px 93px 51px 112px;
     border-image-outset:0px 0px 0px 0px;
     border-image-repeat:stretch stretch;
@@ -188,9 +188,8 @@ button[type="roll"].sheet-bthp:before{
     font-size: 20px;
 }
 
-.sheet-libred{
+.sheet-libbold{
     font-size: 18px;
-    /* color:#993333; */
     color: black;
     font-weight: bold;
     padding-top:4px;
@@ -217,7 +216,6 @@ button[type="roll"].sheet-bthp:before{
 .sheet-lib2{
     display: inline-block;
     text-align: right;
-    /* font-family: 'Overpass Mono', monospace; */
     font-family: 'Special Elite', cursive;
     font-size:12px;
     font-weight:bold;
@@ -227,7 +225,6 @@ button[type="roll"].sheet-bthp:before{
 .sheet-lib2l{
     display: inline-block;
     text-align: left;
-    /* font-family: 'Overpass Mono', monospace; */
     font-family: 'Special Elite', cursive;
     font-size:12px;
     font-weight:bold;
@@ -237,7 +234,6 @@ button[type="roll"].sheet-bthp:before{
 .sheet-libmin1{
     display: inline-block;
     text-align: right;
-    /* font-family: 'Overpass Mono', monospace; */
     font-family: 'Special Elite', cursive;
     font-size:10px;
     font-weight:normal; color:#333;
