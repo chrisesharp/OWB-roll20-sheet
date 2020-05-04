@@ -21,7 +21,10 @@ div.sheet-main{
     background-color : rgb(230, 222, 206);
     background:url('https://github.com/chrisesharp/OWB-roll20-sheet/raw/master/OWBSheet_bg.png');
     background-size: cover;
-    border: 132px solid transparent;
+    border-top: 133px solid transparent;
+    border-right: 93px solid transparent;
+    border-bottom: 51px solid transparent;
+    border-left: 112px solid transparent;
     border-image-slice: 133 93 51 112;
     border-image-width:133px 93px 51px 112px;
     border-image-outset:0px 0px 0px 0px;
